@@ -355,6 +355,20 @@ void ScrollView::Draw(UIContext &dc) {
 		views_[i]->Draw(dc);
 	}
 
+	if (cornerMask_ && orientation_ == ORIENT_VERTICAL) {
+		const Drawable &popupBg = dc.GetTheme().popupStyle.background;
+		const float radius = dc.GetTheme().choiceRoundRadius;
+		if (radius > 0.0f && popupBg.type == DRAW_SOLID_COLOR && (popupBg.color & 0xFF000000) == 0xFF000000) {
+			const Bounds &childBounds = views_[0]->GetBounds();
+			const float maskTop = std::max(bounds_.y, childBounds.y);
+			const float maskBottom = std::min(bounds_.y2(), childBounds.y2());
+			if (maskBottom > maskTop) {
+				const Bounds maskBounds(bounds_.x, maskTop, bounds_.w, maskBottom - maskTop);
+				dc.DrawRoundRectMask(popupBg, maskBounds, radius, RoundCorners::All);
+			}
+		}
+	}
+
 	dc.PopScissor();
 
 	// Vertical scroll bob. We don't support a horizontal yet.
@@ -674,7 +688,15 @@ void ListView::CreateAllItems() {
 			OnItemCallback(i, e);
 		});
 	}
-	linLayout_->SetRoundCorners();
+	linLayout_->SetRoundCorners(cornerMask_ ? RoundCorners::None : RoundCorners::All);
+}
+
+void ListView::SetCornerMask(bool cornerMask) {
+	cornerMask_ = cornerMask;
+	ScrollView::SetCornerMask(cornerMask);
+	if (linLayout_) {
+		linLayout_->SetRoundCorners(cornerMask_ ? RoundCorners::None : RoundCorners::All);
+	}
 }
 
 void ListView::Measure(const UIContext &dc, MeasureSpec horiz, MeasureSpec vert) {

@@ -267,6 +267,12 @@ void ListPopupScreen::CreatePopupContents(UI::ViewGroup *parent) {
 	listView_ = parent->Add(new ListView(&adaptor_, hidden_, icons_)); //, new LinearLayoutParams(1.0)));
 	listView_->SetMaxHeight(screenManager()->getUIContext()->GetBounds().h - 140);
 	listView_->SetShadows(false);
+	const UIContext &dc = *screenManager()->getUIContext();
+	const Drawable &popupBg = dc.GetTheme().popupStyle.background;
+	const bool canUseCornerMask = dc.GetTheme().choiceRoundRadius > 0.0f &&
+		popupBg.type == DRAW_SOLID_COLOR &&
+		(popupBg.color & 0xFF000000) == 0xFF000000;
+	listView_->SetCornerMask(canUseCornerMask);
 	listView_->OnChoice.Handle(this, &ListPopupScreen::OnListChoice);
 }
 
