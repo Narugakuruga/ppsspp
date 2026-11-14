@@ -266,6 +266,7 @@ void ListPopupScreen::CreatePopupContents(UI::ViewGroup *parent) {
 
 	listView_ = parent->Add(new ListView(&adaptor_, hidden_, icons_)); //, new LinearLayoutParams(1.0)));
 	listView_->SetMaxHeight(screenManager()->getUIContext()->GetBounds().h - 140);
+	listView_->SetShadows(false);
 	listView_->OnChoice.Handle(this, &ListPopupScreen::OnListChoice);
 }
 
